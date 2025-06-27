@@ -84,3 +84,11 @@ show_error_context = true
 ignore_missing_imports = false
 allow_redefinition = false
 allow_untyped_globals = false
+
+
+[tool.taskcond]
+taskfile = "TaskFile.py"
+force = false
+n_jobs = 1
+use_processes = false
+visible_progressbar = false
