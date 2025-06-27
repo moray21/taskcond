@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "taskcond"
+dynamic = ["version"]
+authors = [
+    {name = "moray21"},
+]
+description="pythonic task runner."
+readme = "README.md"
+license = {text = "MIT License"}
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "tqdm",
+]
+
+
+[project.optional-dependencies]
+develop = [
+    "pytest",
+    "coverage",
+    "flake8",
+    "mypy",
+    "black",
+    "isort",
+    "types-tqdm",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+taskcond = "taskcond.cli:cli"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "taskcond.__version__"}
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+
+[tool.pytest.ini_options]
+pythonpath = "src/"
+testpaths = ["tests/"]
+
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+mypy_path = ["./src/"]
+exclude = ["^build"]
+# show_error_codes = true
+# disable_error_code = "annotation-unchecked"
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+show_column_numbers = true
+show_error_context = true
+ignore_missing_imports = false
+allow_redefinition = false
+allow_untyped_globals = false
