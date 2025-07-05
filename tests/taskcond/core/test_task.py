@@ -159,12 +159,12 @@ class TestTask:
         task.execute()
 
     def test_execute_function_with_task_args(
-        self, capteesys: pytest.CaptureFixture[str]
+        self, capsys: pytest.CaptureFixture[str]
     ) -> None:
         """
         Tests task_args are correctly passed to a Python function.
         """
         task = Task(name="shell_with_task_args", function=print)
         task.execute(task_args=["test_string"])
-        captured = capteesys.readouterr()
+        captured = capsys.readouterr()
         assert captured.out == "run: shell_with_task_args from python\ntest_string\n\n"

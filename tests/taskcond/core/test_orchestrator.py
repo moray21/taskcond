@@ -36,12 +36,12 @@ class TestTaskOrchestrator:
         captured = capsys.readouterr()
         assert captured.out == (
             "run: A from python\n"
-            + "hello\n"
-            + "\n"
-            + "\n"
-            + "\n"
-            + "--------------------\n"
-            + "--- All tasks completed successfully (or skipped) ---\n"
+            "hello\n"
+            "\n"
+            "\n"
+            "\n"
+            "--------------------\n"
+            "--- All tasks completed successfully (or skipped) ---\n"
         )
 
     def test_successful_run_in_order(self) -> None:

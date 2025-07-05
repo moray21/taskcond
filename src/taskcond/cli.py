@@ -1,4 +1,5 @@
 import importlib.util
+import shlex
 import sys
 import tomllib
 from dataclasses import dataclass
@@ -207,7 +208,7 @@ def run(
     # Validate that all specified tasks exist.
     tasks_to_run: dict[str, list[str]] = {}
     for specifier in task_specifiers:
-        parts = specifier.split(" ")
+        parts = shlex.split(specifier)
         task_name = parts[0]
         task_args = parts[1:] if len(parts) > 1 else []
 
