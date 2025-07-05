@@ -238,6 +238,7 @@ def list_tasks() -> None:
 
     task_manager = TaskManager()
     all_tasks = task_manager.tasks
+    all_tasks = list(filter(lambda task: task.displayed, all_tasks))
     if not all_tasks:
         raise RuntimeError(f"No tasks found in '{config.taskfile}'.")
 

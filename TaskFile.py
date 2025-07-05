@@ -14,9 +14,19 @@ register(
 )
 
 # lint
-register(Task(name="__check_black", shell_command=f"black --check {str(root_dir)}"))
 register(
-    Task(name="__check_isort", shell_command=f"isort --check --diff {str(root_dir)}")
+    Task(
+        name="__check_black",
+        shell_command=f"black --check {str(root_dir)}",
+        displayed=False,
+    )
+)
+register(
+    Task(
+        name="__check_isort",
+        shell_command=f"isort --check --diff {str(root_dir)}",
+        displayed=False,
+    )
 )
 register(Task(name="flake8", shell_command=f"flake8 {str(root_dir)}"))
 register(Task(name="mypy", shell_command=f"mypy {str(root_dir)}"))
