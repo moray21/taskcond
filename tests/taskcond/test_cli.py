@@ -58,6 +58,14 @@ def taskfile(tmp_path: Path) -> Path:
                     output_files=(Path("b.txt"),),
                 )
             )
+            register(
+                Task(
+                    name="__hidden_task",
+                    function=lambda: None,
+                    description="This is a hidden task",
+                    displayed=False,
+                )
+            )
             """
         )
     )
@@ -144,6 +152,7 @@ class TestRunConfig:
 
         assert "A" in manager.task_names
         assert "B" in manager.task_names
+        assert "__hidden_task" in manager.task_names
         assert manager.get_task("B").depends == ("A",)
 
     def test_load_tasks_from_file_not_found(
