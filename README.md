@@ -11,6 +11,7 @@
 - **Command-Line Interface**: A simple and intuitive CLI powered by `click` for running and listing tasks.
 - **Flexible Configuration**: Configure default behaviors in your `pyproject.toml` file.
 - **Cycle Detection**: Automatically detects and reports cyclic dependencies in your task graph.
+- **Hidden Tasks**: Tasks can be hidden from the `list` command by setting `displayed=False`, allowing for internal or helper tasks that don't clutter the task list.
 
 ## Quick Start
 
