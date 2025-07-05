@@ -32,6 +32,8 @@ class Task:
         A tuple of file paths that this task uses as input.
     shell_command : str | None, optional
         A shell command to be executed.
+    displayed : bool
+        If False, the task will not be displayed in the list of available tasks.
     """
 
     name: str
@@ -42,6 +44,7 @@ class Task:
     output_files: tuple[Path, ...] | None = None
     input_files: tuple[Path, ...] | None = None
     shell_command: str | None = None
+    displayed: bool = True
 
     def should_run(self) -> bool:
         """
