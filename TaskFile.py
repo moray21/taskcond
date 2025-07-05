@@ -50,7 +50,7 @@ tgz_file = root_dir / "dist" / f"taskcond-{taskcond.__version__}.tar.gz"
 register(
     Task(
         name="build",
-        shell_command=f"python -m build",
+        shell_command="python -m build",
         output_files=(wheel_file, tgz_file),
         description="build package",
     )
