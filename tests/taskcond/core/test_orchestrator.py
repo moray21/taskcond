@@ -51,15 +51,15 @@ class TestTaskOrchestrator:
         manager = TaskManager()
         execution_order = []
 
-        manager.register(Task(name="A", function=lambda: execution_order.append("A")))
+        manager.register(Task(name="C", function=lambda: execution_order.append("C")))
         manager.register(
-            Task(name="B", depends=("A",), function=lambda: execution_order.append("B"))
+            Task(name="B", depends=("C",), function=lambda: execution_order.append("B"))
         )
 
         orchestrator = TaskOrchestrator(manager, max_workers=-1)
         orchestrator.run_tasks(["B"], tqdm_disable=True)
 
-        assert execution_order == ["A", "B"]
+        assert execution_order == ["C", "B"]
 
     def test_failure_propagation(self, capsys: pytest.CaptureFixture[str]) -> None:
         """

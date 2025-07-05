@@ -322,12 +322,13 @@ class TaskOrchestrator:
             raise ValueError("No target tasks specified for execution.")
 
         # Collect all tasks required for the run (targets and their dependencies).
-        all_tasks: set[Task] = set()
+        all_tasks: list[Task] = []
         queue = deque(target_tasks_names)
         while len(queue) != 0:
             task_name = queue.popleft()
             task = self.__task_manager.get_task(task_name)
-            all_tasks.add(task)
+            if task not in all_tasks:
+                all_tasks.append(task)
             for dep_name in task.depends:
                 queue.append(dep_name)
 
