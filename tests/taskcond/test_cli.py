@@ -37,8 +37,11 @@ def taskfile(tmp_path: Path) -> Path:
             def task_a_func() -> None:  # pragma: no cover
                 Path("a.txt").touch()
 
-            def task_b_func() -> None:  # pragma: no cover
-                Path("b.txt").touch()
+            def task_b_func(to_c: bool = False) -> None:  # pragma: no cover
+                if to_c:
+                    Path("c.txt").touch()
+                else:
+                    Path("b.txt").touch()
 
             register(
                 Task(
@@ -255,6 +258,19 @@ class TestCliCommands:
         assert "All tasks completed successfully" in result.output
         assert Path("a.txt").is_file()
         assert Path("b.txt").is_file()
+
+    def test_run_command_success_with_args(
+        self, runner: CliRunner, taskfile: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Tests a successful 'run' command execution."""
+        monkeypatch.chdir(taskfile.parent)
+
+        result = runner.invoke(cli, ["run", "B False", "-s"])
+
+        assert result.exit_code == 0
+        assert "All tasks completed successfully" in result.output
+        assert Path("a.txt").is_file()
+        assert Path("c.txt").is_file()
 
     def test_run_command_no_tasks(
         self, runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

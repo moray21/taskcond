@@ -123,14 +123,14 @@ class TestTask:
         """
         Tests that a successful shell command executes without error.
         """
-        task = Task(name="test", shell_command="echo 'Success'")
+        task = Task(name="shell", shell_command="echo 'Success'")
         task.execute()
 
     def test_execute_failing_shell_command(self) -> None:
         """
         Tests that a failing shell command raises a RuntimeError.
         """
-        task = Task(name="test", shell_command="test")
+        task = Task(name="shell_failed", shell_command="test")
         with pytest.raises(RuntimeError, match="Shell command failed"):
             task.execute()
 
@@ -138,14 +138,14 @@ class TestTask:
         """
         Tests that a successful Python function executes without error.
         """
-        task = Task(name="test", function=dummy_func)
+        task = Task(name="func", function=dummy_func)
         task.execute()
 
     def test_execute_failing_function(self) -> None:
         """
         Tests that a failing Python function raises a RuntimeError.
         """
-        task = Task(name="test", function=failing_func)
+        task = Task(name="func_failed", function=failing_func)
         with pytest.raises(RuntimeError, match="Python function 'failing_func' failed"):
             task.execute()
 
@@ -153,5 +153,18 @@ class TestTask:
         """
         Tests that arguments are correctly passed to a Python function.
         """
-        task = Task(name="test", function=func_with_args, args=(123, "test_string"))
+        task = Task(
+            name="func_with_args", function=func_with_args, args=(123, "test_string")
+        )
         task.execute()
+
+    def test_execute_function_with_task_args(
+        self, capteesys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Tests task_args are correctly passed to a Python function.
+        """
+        task = Task(name="shell_with_task_args", function=print)
+        task.execute(task_args=["test_string"])
+        captured = capteesys.readouterr()
+        assert captured.out == "run: shell_with_task_args from python\ntest_string\n\n"

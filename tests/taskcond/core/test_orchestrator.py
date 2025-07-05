@@ -22,6 +22,28 @@ def failing_func() -> None:
 class TestTaskOrchestrator:
     """Unit tests for the TaskOrchestrator class."""
 
+    def test_successful_run_with_task_args(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Tests a simple DAG runs successfully with task arguments.
+        """
+        manager = TaskManager()
+        manager.register(Task(name="A", function=print))
+
+        orchestrator = TaskOrchestrator(manager, max_workers=-1)
+        orchestrator.run_tasks(["A"], tqdm_disable=True, task_args_map={"A": ["hello"]})
+        captured = capsys.readouterr()
+        assert captured.out == (
+            "run: A from python\n"
+            + "hello\n"
+            + "\n"
+            + "\n"
+            + "\n"
+            + "--------------------\n"
+            + "--- All tasks completed successfully (or skipped) ---\n"
+        )
+
     def test_successful_run_in_order(self) -> None:
         """
         Tests a simple DAG runs successfully and in the correct order.
