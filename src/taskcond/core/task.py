@@ -103,18 +103,26 @@ class Task:
         else:
             return True
 
-    def execute(self) -> None:
+    def execute(self, task_args: list[str] | None = None) -> None:
         """
         Executes the task's defined action.
 
         If `shell_command` is provided, it is executed first. Then, if
         `function` is provided, it is executed.
 
+        Parameters
+        ----------
+        task_args: list[str] | None, default None
+            task optional arguments
+
         Raises
         ------
         RuntimeError
             If the shell command or the Python function fails during execution.
         """
+        if task_args is None:
+            task_args = []
+
         # If a shell command is defined, execute it.
         if self.shell_command is not None:
             try:
@@ -123,6 +131,7 @@ class Task:
                 command = shlex.split(self.shell_command)
                 # Append any additional arguments.
                 command += list(self.args)
+                command += task_args
 
                 print(f"run: {self.name} from shell")
                 # Execute the command, raising an exception if it returns a non-zero exit code.
@@ -138,7 +147,7 @@ class Task:
             try:
                 print(f"run: {self.name} from python")
                 # Call the function, unpacking the stored arguments.
-                self.function(*self.args)
+                self.function(*self.args, *task_args)
                 print()
             except Exception as e:
                 # Wrap any exception from the function in a RuntimeError.

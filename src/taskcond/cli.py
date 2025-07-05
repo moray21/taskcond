@@ -127,7 +127,7 @@ def cli() -> None:
 
 # ------------------------------ 'run' Command ------------------------------
 @cli.command(name="run")
-@click.argument("task_name_list", nargs=-1)
+@click.argument("task_specifiers", nargs=-1, type=str)
 @click.option(
     "--force",
     "-f",
@@ -155,23 +155,25 @@ def cli() -> None:
 @click.pass_context
 def run(
     ctx: click.Context,
-    task_name_list: tuple[str, ...],
+    task_specifiers: tuple[str, ...],
     force: bool,
     n_jobs: int | None,
     use_processes: bool,
     visible_progressbar: bool,
 ) -> None:
     """
-    Run a specific task or the default task.
+    Run one or more specific tasks.
 
-    If no tasks are specified, this command will raise an error.
+    Each task can be specified by its name, optionally followed by arguments
+    enclosed in quotes. For example:
+    `taskcond run "test -vv" "black --check"`
 
     Parameters
     ----------
     ctx : click.Context
         The Click context object.
-    task_name_list : tuple[str, ...]
-        A list of task names to execute.
+    task_specifiers : tuple[str, ...]
+        A list of task names, optionally with arguments, to execute.
     force : bool
         Flag to force task execution.
     n_jobs : int | None
@@ -186,7 +188,7 @@ def run(
     kwargs = {
         attr: value
         for attr, value in locals().items()
-        if attr not in ["ctx", "task_name_list"]
+        if attr not in ["ctx", "task_specifiers"]
         and ctx.get_parameter_source(attr) != click.core.ParameterSource.DEFAULT
     }
     # Load configuration, which also loads the tasks from the task file.
@@ -197,29 +199,34 @@ def run(
     if len(all_task_names) == 0:
         raise RuntimeError(f"No tasks found in '{config.taskfile}'.")
 
-    if not task_name_list:
+    if not task_specifiers:
         raise ValueError(
             "No target tasks specified. Use 'taskcond list' to see available tasks."
         )
 
     # Validate that all specified tasks exist.
-    target_task_list: list[str] = []
-    for task_name in task_name_list:
+    tasks_to_run: dict[str, list[str]] = {}
+    for specifier in task_specifiers:
+        parts = specifier.split(" ")
+        task_name = parts[0]
+        task_args = parts[1:] if len(parts) > 1 else []
+
         if task_name not in all_task_names:
             raise ValueError(
                 f"Error: Task '{task_name}' not found. "
                 + "Use 'taskcond list' to see available tasks."
             )
-        target_task_list.append(task_name)
+        tasks_to_run[task_name] = task_args
 
     # Set up and run the orchestrator.
     orchestrator = TaskOrchestrator(
         task_manager, max_workers=config.n_jobs, use_processes=config.use_processes
     )
     orchestrator.run_tasks(
-        target_task_list,
+        list(tasks_to_run.keys()),
         force=config.force,
         tqdm_disable=(not config.visible_progressbar),
+        task_args_map=tasks_to_run,
     )
 
 

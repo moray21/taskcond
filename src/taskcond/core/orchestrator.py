@@ -180,6 +180,7 @@ class TaskOrchestrator:
         target_tasks_names: list[str],
         force: bool = False,
         tqdm_disable: bool | None = False,
+        task_args_map: dict[str, list[str]] | None = None,
     ) -> None:
         """
         Executes a set of target tasks and their dependencies.
@@ -193,7 +194,8 @@ class TaskOrchestrator:
             ignoring their `should_run()` status.
         tqdm_disable : bool or None, default False
             If True, disables the tqdm progress bar.
-
+        task_args_map : dict[str, list[str]] | None, default None
+            A dictionary mapping task names to their specific arguments.
         """
         # 1. Build the execution graph and initialize task states.
         total_tasks_to_run, task_states, reverse_dependencies = (
@@ -212,7 +214,13 @@ class TaskOrchestrator:
         ):
             # 2. Submit initial tasks that have no dependencies.
             self.__do_ready_tasks(
-                pbar, executor, task_states, reverse_dependencies, future_dict, force
+                pbar,
+                executor,
+                task_states,
+                reverse_dependencies,
+                future_dict,
+                force,
+                task_args_map,
             )
 
             # 3. Main loop: monitor running tasks and submit new ones as they become ready.
@@ -254,6 +262,7 @@ class TaskOrchestrator:
                     reverse_dependencies,
                     future_dict,
                     force,
+                    task_args_map,
                 )
 
                 # Deadlock/Stall detection: No tasks are running, but some are still pending.
@@ -340,6 +349,7 @@ class TaskOrchestrator:
         reverse_dependencies: dict[str, set[Task]],
         future_dict: dict[Future[None], Task],
         force: bool = False,
+        task_args_map: dict[str, list[str]] | None = None,
     ) -> None:
         """
         Identifies and submits ready tasks to the executor.
@@ -361,7 +371,11 @@ class TaskOrchestrator:
             A dictionary to store the future objects of submitted tasks.
         force : bool
             If True, run the task even if `should_run()` is False.
+        task_args_map : dict[str, list[str]] | None, default None
+            A dictionary mapping task names to their specific arguments.
         """
+        if task_args_map is None:
+            task_args_map = {}
 
         for task, state in task_states.items():
             if not state.is_ready:
@@ -370,7 +384,8 @@ class TaskOrchestrator:
             if force or task.should_run():
                 # Submit the task for execution.
                 task_states[task].status = RunStatus.RUNNING
-                future = executor.submit(task.execute)
+                task_args = task_args_map.get(task.name, [])
+                future = executor.submit(task.execute, task_args)
                 future_dict[future] = task
 
             else:
