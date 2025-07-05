@@ -66,6 +66,13 @@ def taskfile(tmp_path: Path) -> Path:
                     displayed=False,
                 )
             )
+            register(
+                Task(
+                    name="C",
+                    function=print,
+                    description="Task C",
+                )
+            )
             """
         )
     )
@@ -153,6 +160,7 @@ class TestRunConfig:
         assert "A" in manager.task_names
         assert "B" in manager.task_names
         assert "__hidden_task" in manager.task_names
+        assert "C" in manager.task_names
         assert manager.get_task("B").depends == ("A",)
 
     def test_load_tasks_from_file_not_found(
@@ -208,6 +216,7 @@ class TestCliCommands:
             "  B: Task B\n"
             "    Depends on: A\n"
             "    Outputs: b.txt\n"
+            "  C: Task C\n"
         )
 
         assert result.exit_code == 0
@@ -255,6 +264,18 @@ class TestCliCommands:
         assert "All tasks completed successfully" in result.output
         assert Path("a.txt").is_file()
         assert Path("b.txt").is_file()
+
+    def test_run_command_success_with_args(
+        self, runner: CliRunner, taskfile: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Tests a successful 'run' command execution."""
+        monkeypatch.chdir(taskfile.parent)
+
+        result = runner.invoke(cli, ["run", "C test_string", "-s"])
+
+        assert result.exit_code == 0
+        assert "test_string" in result.output
+        assert "All tasks completed successfully" in result.output
 
     def test_run_command_no_tasks(
         self, runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

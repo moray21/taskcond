@@ -58,6 +58,9 @@
 
     # Run a specific task and its dependencies
     taskcond run process_file
+
+    # Run a task with arguments
+    taskcond run "test --verbose"
     ```
 
     The `process_file` task will only run if `output.txt` has been modified or is missing.
